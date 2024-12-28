@@ -294,7 +294,8 @@ function App() {
 
   const handleShare = () => {
     if (result) {
-      const text = `I found my Animal Soul Match! I'm ${animalResults[result].title} 🌸\n${animalResults[result].description}\nFind your match too!`;
+      const animalEmoji = getAnimalEmoji(result);
+      const text = `I found my Animal Soul Match! I'm ${animalResults[result].title} ${animalEmoji}\n${animalResults[result].description}\nFind your match too!`;
       if (navigator.share) {
         navigator.share({
           title: 'My Animal Soul Match Result',
