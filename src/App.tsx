@@ -127,23 +127,32 @@ const ShareableResult = styled(motion.div)`
   margin: 0 auto;
   position: relative;
   color: #000;
+  isolation: isolate;
 
   &:before, &:after {
     content: '🌸';
     position: absolute;
-    font-size: 3rem;
-    opacity: 0.3;
-    z-index: 1;
+    font-size: 5rem;
+    opacity: 0.15;
+    z-index: -1;
+    pointer-events: none;
   }
 
   &:before {
-    top: 1.5rem;
-    left: 1.5rem;
+    top: 30%;
+    left: 15%;
+    transform: translateZ(0);
   }
 
   &:after {
-    bottom: 1.5rem;
-    right: 1.5rem;
+    bottom: 30%;
+    right: 15%;
+    transform: translateZ(0);
+  }
+
+  & > * {
+    position: relative;
+    z-index: 1;
   }
 
   @media (min-width: 600px) {
@@ -418,18 +427,30 @@ function App() {
 
   const handleAnswer = (option: Question['options'][0]) => {
     const newScores = { ...scores };
+    
+    // Calculate total score for normalization
+    const totalScore = Object.values(option.score).reduce((a, b) => a + b, 0);
+    
+    // Add normalized scores
     Object.entries(option.score).forEach(([animal, score]) => {
-      newScores[animal as AnimalType] += score;
+      // Normalize the score relative to other options
+      const normalizedScore = score / (totalScore || 1); // Avoid division by zero
+      newScores[animal as AnimalType] += normalizedScore;
     });
+    
     setScores(newScores);
 
     if (currentQuestion < quizQuestions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      const result = Object.entries(newScores).reduce((a, b) => 
-        a[1] > b[1] ? a : b
-      )[0] as AnimalType;
-      setResult(result);
+      // Add some randomness to tiebreakers
+      const maxScore = Math.max(...Object.values(newScores));
+      const topScorers = Object.entries(newScores)
+        .filter(([_, score]) => Math.abs(score - maxScore) < 0.1); // Allow close scores
+      
+      // Randomly select from top scorers if there are multiple
+      const winner = topScorers[Math.floor(Math.random() * topScorers.length)];
+      setResult(winner[0] as AnimalType);
     }
   };
 
