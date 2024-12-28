@@ -521,7 +521,7 @@ function App() {
       clone.style.flexDirection = 'column';
       clone.style.justifyContent = 'center';
       clone.style.padding = '40px 20px';
-      
+
       // Increase text sizes in the clone
       const emoji = clone.querySelector('[class*="AnimalEmoji"]');
       if (emoji) {
@@ -544,6 +544,43 @@ function App() {
       }
       
       wrapper.appendChild(clone);
+      
+      // Add flowers only for desktop
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (!isMobile) {
+        const flowers = ['🌸', '🌸', '🌸', '🌸'];
+        flowers.forEach((flower, index) => {
+          const flowerEl = document.createElement('div');
+          flowerEl.style.position = 'absolute';
+          flowerEl.style.fontSize = '80px';
+          flowerEl.style.opacity = '0.15';
+          flowerEl.textContent = flower;
+          
+          switch(index) {
+            case 0: // top left
+              flowerEl.style.top = '15%';
+              flowerEl.style.left = '10%';
+              flowerEl.style.transform = 'rotate(-15deg)';
+              break;
+            case 1: // top right
+              flowerEl.style.top = '15%';
+              flowerEl.style.right = '10%';
+              flowerEl.style.transform = 'rotate(15deg)';
+              break;
+            case 2: // bottom left
+              flowerEl.style.bottom = '15%';
+              flowerEl.style.left = '10%';
+              flowerEl.style.transform = 'rotate(-15deg)';
+              break;
+            case 3: // bottom right
+              flowerEl.style.bottom = '15%';
+              flowerEl.style.right = '10%';
+              flowerEl.style.transform = 'rotate(15deg)';
+              break;
+          }
+          clone.appendChild(flowerEl);
+        });
+      }
       
       // Add footer text
       const footer = document.createElement('div');
@@ -577,8 +614,6 @@ function App() {
       });
 
       // Check if it's a mobile device
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
       if (isMobile && navigator.share) {
         // Mobile sharing
         try {
