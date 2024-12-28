@@ -5,6 +5,7 @@ import { theme } from './styles/theme';
 import { Question, AnimalType, animalResults } from './data/questions';
 import { getRandomQuestions } from './data/questionBank';
 import { ComingSoon } from './components/ComingSoon/ComingSoon';
+import html2canvas from 'html2canvas';
 
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap');
@@ -113,7 +114,10 @@ const Progress = styled.div<{ width: number }>`
 
 const ResultContainer = styled(motion.div)`
   text-align: center;
-  padding: 2rem;
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
 `;
 
 const ResultTitle = styled(motion.h2)`
@@ -207,6 +211,154 @@ const AnimalEmoji = styled(motion.div)`
   margin: 1rem 0;
 `;
 
+const ShareableResult = styled(motion.div)`
+  background: ${({ theme }) => theme.colors.white};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  padding: 2.5rem;
+  margin: 1rem auto;
+  position: relative;
+  max-width: 500px;
+  box-shadow: 0 4px 12px ${({ theme }) => `${theme.colors.primary}20`};
+  border: 2px solid ${({ theme }) => `${theme.colors.primary}30`};
+  
+  /* Ensure proper rendering for image capture */
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  
+  &:before {
+    content: '🌸';
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    opacity: 0.3;
+    font-size: 2rem;
+    z-index: 1;
+  }
+  
+  &:after {
+    content: '🌸';
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    opacity: 0.3;
+    font-size: 2rem;
+    z-index: 1;
+  }
+
+  ${AnimalEmoji} {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: block;
+    /* Ensure emoji renders properly */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ${ResultTitle} {
+    font-size: 2rem;
+    margin: 1rem 0;
+  }
+
+  ${ResultDescription} {
+    font-size: 1.1rem;
+    margin: 1rem 0;
+    line-height: 1.6;
+  }
+
+  ${DetailSection} {
+    margin: 1.5rem 0;
+    text-align: left;
+  }
+
+  ${DetailTitle} {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  ${DetailContent} {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  ${TraitsContainer} {
+    margin: 1.5rem 0;
+  }
+
+  ${Trait} {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+`;
+
+const ShareButtonsContainer = styled(motion.div)`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+`;
+
+const ImageShareButton = styled(ShareButton)`
+  background: #FFB7C5;
+  
+  &:hover {
+    background: #FFB7C5dd;
+  }
+`;
+
+const ShareMenu = styled(motion.div)`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 1rem;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+`;
+
+const ShareOption = styled(motion.button)`
+  width: 100%;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border: none;
+  background: ${({ theme }) => `${theme.colors.primary}15`};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  font-family: ${({ theme }) => theme.fonts.primary};
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: ${({ theme }) => `${theme.colors.primary}25`};
+  }
+`;
+
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+`;
+
+const menuVariants = {
+  hidden: { y: "100%" },
+  visible: { y: 0 }
+};
+
+const overlayVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 }
+};
+
 const initialScores: Record<AnimalType, number> = {
   cat: 0,
   rabbit: 0,
@@ -261,9 +413,9 @@ function App() {
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [scores, setScores] = useState<Record<AnimalType, number>>(initialScores);
   const [result, setResult] = useState<AnimalType | null>(null);
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   useEffect(() => {
-    // Get 6 random questions when the component mounts
     setQuizQuestions(getRandomQuestions(6));
   }, []);
 
@@ -288,25 +440,62 @@ function App() {
     setCurrentQuestion(0);
     setScores(initialScores);
     setResult(null);
-    // Get new random questions for the next round
     setQuizQuestions(getRandomQuestions(6));
   };
 
-  const handleShare = () => {
+  const handleSaveAndShare = async () => {
+    const element = document.getElementById('shareable-result');
+    if (!element) return;
+
+    try {
+      const canvas = await html2canvas(element, {
+        backgroundColor: theme.colors.white,
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+      });
+
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((blob) => {
+          resolve(blob!);
+        }, 'image/png', 1.0);
+      });
+
+      const url = URL.createObjectURL(blob);
+      
+      window.open(url, '_blank');
+      
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      
+      setShowShareMenu(false);
+    } catch (error) {
+      console.error('Error generating image:', error);
+    }
+  };
+
+  const handleTextShare = () => {
     if (result) {
       const animalEmoji = getAnimalEmoji(result);
       const text = `I found my Animal Soul Match! I'm ${animalResults[result].title} ${animalEmoji}\n${animalResults[result].description}\nFind your match too!`;
+      
       if (navigator.share) {
         navigator.share({
           title: '🌸 My Animal Soul Match Result 🌸',
           text: text,
           url: window.location.href,
+        }).catch(err => {
+          console.log('Error sharing:', err);
+          navigator.clipboard.writeText(text);
         });
       } else {
         navigator.clipboard.writeText(text);
-        alert('Result copied to clipboard!');
       }
+      setShowShareMenu(false);
     }
+  };
+
+  const handleShareMenuClick = () => {
+    setShowShareMenu(true);
   };
 
   return (
@@ -334,75 +523,77 @@ function App() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
               >
-                <AnimalEmoji
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                >
-                  {getAnimalEmoji(result)}
-                </AnimalEmoji>
-                <ResultTitle
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  {animalResults[result].title}
-                </ResultTitle>
-                <ResultDescription
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  {animalResults[result].description}
-                </ResultDescription>
-                <ResultDetails
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <DetailSection>
-                    <DetailTitle>Core Values</DetailTitle>
-                    <DetailContent>
-                      {animalResults[result].values.join(' • ')}
-                    </DetailContent>
-                  </DetailSection>
-                  <DetailSection>
-                    <DetailTitle>Communication Style</DetailTitle>
-                    <DetailContent>
-                      {animalResults[result].communication.map((item, index) => (
-                        <span key={index}>{item}</span>
-                      ))}
-                    </DetailContent>
-                  </DetailSection>
-                  <DetailSection>
-                    <DetailTitle>Relationships</DetailTitle>
-                    <DetailContent>
-                      {animalResults[result].relationships.map((item, index) => (
-                        <span key={index}>{item}</span>
-                      ))}
-                    </DetailContent>
-                  </DetailSection>
-                </ResultDetails>
-                <TraitsContainer>
-                  {animalResults[result].traits.map((trait, index) => (
-                    <Trait
-                      key={trait}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.6 + index * 0.1 }}
-                    >
-                      {trait}
-                    </Trait>
-                  ))}
-                </TraitsContainer>
-                <motion.div>
-                  <ShareButton
-                    onClick={handleShare}
+                <ShareableResult id="shareable-result">
+                  <AnimalEmoji
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                  >
+                    {getAnimalEmoji(result)}
+                  </AnimalEmoji>
+                  <ResultTitle
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    {animalResults[result].title}
+                  </ResultTitle>
+                  <ResultDescription
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    {animalResults[result].description}
+                  </ResultDescription>
+                  <ResultDetails
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <DetailSection>
+                      <DetailTitle>Core Values</DetailTitle>
+                      <DetailContent>
+                        {animalResults[result].values.join(' • ')}
+                      </DetailContent>
+                    </DetailSection>
+                    <DetailSection>
+                      <DetailTitle>Communication Style</DetailTitle>
+                      <DetailContent>
+                        {animalResults[result].communication.map((item, index) => (
+                          <span key={index}>{item}</span>
+                        ))}
+                      </DetailContent>
+                    </DetailSection>
+                    <DetailSection>
+                      <DetailTitle>Relationships</DetailTitle>
+                      <DetailContent>
+                        {animalResults[result].relationships.map((item, index) => (
+                          <span key={index}>{item}</span>
+                        ))}
+                      </DetailContent>
+                    </DetailSection>
+                  </ResultDetails>
+                  <TraitsContainer>
+                    {animalResults[result].traits.map((trait, index) => (
+                      <Trait
+                        key={trait}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
+                      >
+                        {trait}
+                      </Trait>
+                    ))}
+                  </TraitsContainer>
+                </ShareableResult>
+                <ShareButtonsContainer>
+                  <ImageShareButton
+                    onClick={handleShareMenuClick}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    Share Result
-                  </ShareButton>
+                    Share to Social Media
+                  </ImageShareButton>
                   <RestartButton
                     onClick={handleRestart}
                     whileHover={{ scale: 1.05 }}
@@ -410,7 +601,35 @@ function App() {
                   >
                     Take Quiz Again
                   </RestartButton>
-                </motion.div>
+                </ShareButtonsContainer>
+
+                {showShareMenu && (
+                  <>
+                    <Overlay
+                      variants={overlayVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                      onClick={() => setShowShareMenu(false)}
+                    />
+                    <ShareMenu
+                      variants={menuVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                    >
+                      <ShareOption onClick={handleSaveAndShare}>
+                        🖼️ Share as image
+                      </ShareOption>
+                      <ShareOption onClick={handleTextShare}>
+                        📝 Share your result
+                      </ShareOption>
+                      <ShareOption onClick={() => setShowShareMenu(false)}>
+                        ❌ Cancel
+                      </ShareOption>
+                    </ShareMenu>
+                  </>
+                )}
               </ResultContainer>
             ) : quizQuestions.length > 0 ? (
               <motion.div
