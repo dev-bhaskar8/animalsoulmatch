@@ -487,12 +487,120 @@ function App() {
     if (!element) return;
 
     try {
-      const canvas = await html2canvas(element, {
+      // Create a wrapper for Instagram-friendly aspect ratio
+      const wrapper = document.createElement('div');
+      wrapper.style.width = '1080px';
+      wrapper.style.height = '1350px';
+      wrapper.style.backgroundColor = theme.colors.white;
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'column';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.justifyContent = 'space-between';
+      wrapper.style.padding = '40px';
+      
+      // Add URL header
+      const header = document.createElement('div');
+      header.style.width = '100%';
+      header.style.textAlign = 'center';
+      header.style.fontFamily = theme.fonts.secondary;
+      header.style.fontSize = '36px';
+      header.style.color = theme.colors.primary;
+      header.style.padding = '20px';
+      header.style.borderRadius = '16px';
+      header.style.backgroundColor = `${theme.colors.primary}15`;
+      header.textContent = window.location.origin;
+      wrapper.appendChild(header);
+      
+      // Clone the element to avoid modifying the original
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.style.width = '1000px';
+      clone.style.flex = '1';
+      clone.style.display = 'flex';
+      clone.style.flexDirection = 'column';
+      clone.style.justifyContent = 'center';
+      clone.style.padding = '40px 20px';
+      
+      // Add decorative elements
+      const flowers = ['🌸', '🌸', '🌸', '🌸'];  
+      flowers.forEach((flower, index) => {
+        const flowerEl = document.createElement('div');
+        flowerEl.style.position = 'absolute';
+        flowerEl.style.fontSize = '80px';
+        flowerEl.style.opacity = '0.15';  
+        flowerEl.textContent = flower;
+        
+        switch(index) {
+          case 0: // top left
+            flowerEl.style.top = '15%';
+            flowerEl.style.left = '10%';
+            flowerEl.style.transform = 'rotate(-15deg)';
+            break;
+          case 1: // top right
+            flowerEl.style.top = '15%';
+            flowerEl.style.right = '10%';
+            flowerEl.style.transform = 'rotate(15deg)';
+            break;
+          case 2: // bottom left
+            flowerEl.style.bottom = '15%';
+            flowerEl.style.left = '10%';
+            flowerEl.style.transform = 'rotate(-15deg)';
+            break;
+          case 3: // bottom right
+            flowerEl.style.bottom = '15%';
+            flowerEl.style.right = '10%';
+            flowerEl.style.transform = 'rotate(15deg)';
+            break;
+        }
+        clone.appendChild(flowerEl);
+      });
+      
+      // Increase text sizes in the clone
+      const emoji = clone.querySelector('[class*="AnimalEmoji"]');
+      if (emoji) {
+        (emoji as HTMLElement).style.fontSize = '180px'; 
+      }
+      
+      const title = clone.querySelector('[class*="ResultTitle"]');
+      if (title) {
+        (title as HTMLElement).style.fontSize = '72px'; 
+        (title as HTMLElement).style.margin = '40px 0';
+      }
+      
+      const description = clone.querySelector('[class*="ResultDescription"]');
+      if (description) {
+        (description as HTMLElement).style.fontSize = '42px'; 
+        (description as HTMLElement).style.lineHeight = '1.4';
+        (description as HTMLElement).style.margin = '30px 0';
+        (description as HTMLElement).style.maxWidth = '90%';
+        (description as HTMLElement).style.alignSelf = 'center';
+      }
+      
+      wrapper.appendChild(clone);
+      
+      // Add footer text
+      const footer = document.createElement('div');
+      footer.style.fontSize = '28px';
+      footer.style.color = theme.colors.primary;
+      footer.style.opacity = '0.8';
+      footer.style.marginTop = '20px';
+      footer.textContent = '✨ Take the quiz to find your animal soul match! ✨';
+      wrapper.appendChild(footer);
+      
+      // Temporarily add to document (hidden), capture, then remove
+      wrapper.style.position = 'absolute';
+      wrapper.style.left = '-9999px';
+      document.body.appendChild(wrapper);
+
+      const canvas = await html2canvas(wrapper, {
         backgroundColor: theme.colors.white,
-        scale: 3,
+        scale: 1,
         useCORS: true,
         allowTaint: true,
+        logging: false,
       });
+
+      // Clean up
+      document.body.removeChild(wrapper);
 
       const blob = await new Promise<Blob>((resolve) => {
         canvas.toBlob((blob) => {
@@ -501,13 +609,10 @@ function App() {
       });
 
       const url = URL.createObjectURL(blob);
-      
       window.open(url, '_blank');
-      
       setTimeout(() => URL.revokeObjectURL(url), 60000);
       
       setShowShareMenu(false);
-      // Track image share
       trackShare('image');
     } catch (error) {
       console.error('Error generating image:', error);
