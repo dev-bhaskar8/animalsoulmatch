@@ -84,11 +84,13 @@ const Option = styled.button<{ selected?: boolean }>`
   position: relative;
   overflow: hidden;
 
-  &:hover {
-    background: ${({ theme }) => `${theme.colors.primary}15`};
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px ${({ theme }) => `${theme.colors.primary}20`};
+  @media (hover: hover) {
+    &:hover {
+      background: ${({ theme }) => `${theme.colors.primary}15`};
+      border-color: ${({ theme }) => theme.colors.primary};
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px ${({ theme }) => `${theme.colors.primary}20`};
+    }
   }
 
   &:active {
@@ -520,44 +522,10 @@ function App() {
       clone.style.justifyContent = 'center';
       clone.style.padding = '40px 20px';
       
-      // Add decorative elements
-      const flowers = ['🌸', '🌸', '🌸', '🌸'];  
-      flowers.forEach((flower, index) => {
-        const flowerEl = document.createElement('div');
-        flowerEl.style.position = 'absolute';
-        flowerEl.style.fontSize = '80px';
-        flowerEl.style.opacity = '0.15';  
-        flowerEl.textContent = flower;
-        
-        switch(index) {
-          case 0: // top left
-            flowerEl.style.top = '15%';
-            flowerEl.style.left = '10%';
-            flowerEl.style.transform = 'rotate(-15deg)';
-            break;
-          case 1: // top right
-            flowerEl.style.top = '15%';
-            flowerEl.style.right = '10%';
-            flowerEl.style.transform = 'rotate(15deg)';
-            break;
-          case 2: // bottom left
-            flowerEl.style.bottom = '15%';
-            flowerEl.style.left = '10%';
-            flowerEl.style.transform = 'rotate(-15deg)';
-            break;
-          case 3: // bottom right
-            flowerEl.style.bottom = '15%';
-            flowerEl.style.right = '10%';
-            flowerEl.style.transform = 'rotate(15deg)';
-            break;
-        }
-        clone.appendChild(flowerEl);
-      });
-      
       // Increase text sizes in the clone
       const emoji = clone.querySelector('[class*="AnimalEmoji"]');
       if (emoji) {
-        (emoji as HTMLElement).style.fontSize = '180px'; 
+        (emoji as HTMLElement).style.fontSize = '320px';  // Much larger size
       }
       
       const title = clone.querySelector('[class*="ResultTitle"]');
