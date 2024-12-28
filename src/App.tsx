@@ -114,188 +114,187 @@ const Progress = styled.div<{ width: number }>`
 
 const ResultContainer = styled(motion.div)`
   text-align: center;
-  padding: 1rem;
-  max-width: 600px;
+  width: 100%;
+  padding: 0.5rem;
+  margin: 0 auto;
+`;
+
+const ShareableResult = styled(motion.div)`
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   margin: 0 auto;
   position: relative;
-`;
+  color: #000;
+  isolation: isolate;
 
-const ResultTitle = styled(motion.h2)`
-  font-size: 2.5rem;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 1.5rem;
-  font-family: ${({ theme }) => theme.fonts.secondary};
-`;
+  &:before, &:after {
+    content: '🌸';
+    position: absolute;
+    font-size: 5rem;
+    opacity: 0.15;
+    z-index: -1;
+    pointer-events: none;
+  }
 
-const ResultDescription = styled(motion.p)`
-  font-size: 1.2rem;
-  line-height: 1.8;
-  margin-bottom: 2rem;
-  color: ${({ theme }) => theme.colors.text};
-`;
+  &:before {
+    top: 25%;
+    left: 15%;
+    transform: translateZ(0);
+  }
 
-const ResultDetails = styled(motion.div)`
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: ${({ theme }) => `${theme.colors.accent}10`};
-  border-radius: ${({ theme }) => theme.borderRadius};
-`;
+  &:after {
+    bottom: 25%;
+    right: 15%;
+    transform: translateZ(0);
+  }
 
-const DetailSection = styled(motion.div)`
-  margin: 1.5rem 0;
-  text-align: left;
-`;
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
 
-const DetailTitle = styled.h4`
-  font-family: ${({ theme }) => theme.fonts.secondary};
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 0.5rem;
-  font-size: 1.1rem;
-`;
-
-const DetailContent = styled.p`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 1rem;
-  line-height: 1.6;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  
-  /* Add spacing between words when they're concatenated */
-  & > span:not(:last-child)::after {
-    content: " • ";
-    margin: 0 0.5rem;
+  @media (min-width: 600px) {
+    background: ${({ theme }) => theme.colors.white};
+    width: 500px;
+    border-radius: ${({ theme }) => theme.borderRadius};
+    box-shadow: 0 4px 12px ${({ theme }) => `${theme.colors.primary}20`};
+    border: 2px solid ${({ theme }) => `${theme.colors.primary}30`};
+    margin: 1rem auto;
   }
 `;
 
-const TraitsContainer = styled(motion.div)`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-  margin: 2rem 0;
+const ResultTitle = styled.h2`
+  color: inherit;
+  font-size: 1.75rem;
+  margin: 0;
+  font-weight: 600;
+  text-align: center;
 `;
 
-const Trait = styled(motion.span)`
-  background: ${({ theme }) => theme.colors.accent}40;
-  color: ${({ theme }) => theme.colors.text};
-  padding: 0.5rem 1.5rem;
-  border-radius: 20px;
+const ResultDescription = styled.p`
+  color: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+`;
+
+const SectionTitle = styled.h3`
+  color: inherit;
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: 600;
+  text-align: left;
+  padding: 0 0.5rem;
+`;
+
+const SectionContent = styled.div`
+  color: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: left;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  padding: 0 0.5rem;
+`;
+
+const Section = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  
+  @media (max-width: 599px) {
+    &:not(:last-child) {
+      border-bottom: 1px solid ${({ theme }) => `${theme.colors.primary}30`};
+    }
+  }
+
+  @media (min-width: 600px) {
+    border-bottom: 1px solid ${({ theme }) => `${theme.colors.primary}20`};
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+`;
+
+const SectionItem = styled.span`
+  display: inline-block;
+  &:not(:last-child)::after {
+    content: "•";
+    margin: 0 0.25rem;
+    opacity: 0.5;
+  }
+`;
+
+const TraitsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0 0.5rem;
+`;
+
+const Trait = styled.span`
+  background: ${({ theme }) => `${theme.colors.primary}15`};
+  color: #000;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.9rem;
+`;
+
+const ShareButtonsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin: 0 auto;
+  width: 100%;
+  
+  @media (min-width: 600px) {
+    max-width: 500px;
+  }
+
+  & > * {
+    flex: 1 1 140px;
+    max-width: 200px;
+  }
 `;
 
 const ShareButton = styled(motion.button)`
-  background: ${({ theme }) => theme.colors.primary};
-  color: ${({ theme }) => theme.colors.text};
+  padding: 0.75rem 1.5rem;
   border: none;
-  padding: 1rem 2rem;
   border-radius: ${({ theme }) => theme.borderRadius};
-  font-size: 1.1rem;
+  background: ${({ theme }) => theme.colors.primary};
+  color: white;
+  font-family: ${({ theme }) => theme.fonts.primary};
+  font-size: 1rem;
   cursor: pointer;
-  margin-top: 2rem;
-  transition: transform 0.2s ease;
-
+  width: 100%;
+  
   &:hover {
-    transform: scale(1.05);
+    background: ${({ theme }) => `${theme.colors.primary}dd`};
   }
+`;
+
+const AnimalEmoji = styled.span`
+  font-size: 3.5rem;
+  margin: 0;
+  display: block;
+  text-align: center;
 `;
 
 const RestartButton = styled(ShareButton)`
   background: ${({ theme }) => theme.colors.secondary};
-  margin-left: 1rem;
-`;
-
-const AnimalEmoji = styled(motion.div)`
-  font-size: 5rem;
-  margin: 1rem 0;
-`;
-
-const ShareableResult = styled(motion.div)`
-  background: ${({ theme }) => theme.colors.white};
-  border-radius: ${({ theme }) => theme.borderRadius};
-  padding: 2.5rem;
-  margin: 1rem auto;
-  position: relative;
-  max-width: 500px;
-  box-shadow: 0 4px 12px ${({ theme }) => `${theme.colors.primary}20`};
-  border: 2px solid ${({ theme }) => `${theme.colors.primary}30`};
   
-  /* Ensure proper rendering for image capture */
-  transform: translate3d(0,0,0);
-  backface-visibility: hidden;
-  perspective: 1000;
-  
-  &:before {
-    content: '🌸';
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    opacity: 0.3;
-    font-size: 2rem;
-    z-index: 1;
+  &:hover {
+    background: ${({ theme }) => `${theme.colors.secondary}dd`};
   }
-  
-  &:after {
-    content: '🌸';
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    opacity: 0.3;
-    font-size: 2rem;
-    z-index: 1;
-  }
-
-  ${AnimalEmoji} {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    display: block;
-    /* Ensure emoji renders properly */
-    -webkit-font-smoothing: antialiased;
-  }
-
-  ${ResultTitle} {
-    font-size: 2rem;
-    margin: 1rem 0;
-  }
-
-  ${ResultDescription} {
-    font-size: 1.1rem;
-    margin: 1rem 0;
-    line-height: 1.6;
-  }
-
-  ${DetailSection} {
-    margin: 1.5rem 0;
-    text-align: left;
-  }
-
-  ${DetailTitle} {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-  }
-
-  ${DetailContent} {
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-
-  ${TraitsContainer} {
-    margin: 1.5rem 0;
-  }
-
-  ${Trait} {
-    font-size: 0.9rem;
-    padding: 0.5rem 1rem;
-  }
-`;
-
-const ShareButtonsContainer = styled(motion.div)`
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-  flex-wrap: wrap;
 `;
 
 const ImageShareButton = styled(ShareButton)`
@@ -524,76 +523,57 @@ function App() {
                 transition={{ duration: 0.5 }}
               >
                 <ShareableResult id="shareable-result">
-                  <AnimalEmoji
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                  >
+                  <AnimalEmoji>
                     {getAnimalEmoji(result)}
                   </AnimalEmoji>
-                  <ResultTitle
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
+                  <ResultTitle>
                     {animalResults[result].title}
                   </ResultTitle>
-                  <ResultDescription
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                  >
+                  <ResultDescription>
                     {animalResults[result].description}
                   </ResultDescription>
-                  <ResultDetails
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <DetailSection>
-                      <DetailTitle>Core Values</DetailTitle>
-                      <DetailContent>
-                        {animalResults[result].values.join(' • ')}
-                      </DetailContent>
-                    </DetailSection>
-                    <DetailSection>
-                      <DetailTitle>Communication Style</DetailTitle>
-                      <DetailContent>
-                        {animalResults[result].communication.map((item, index) => (
-                          <span key={index}>{item}</span>
-                        ))}
-                      </DetailContent>
-                    </DetailSection>
-                    <DetailSection>
-                      <DetailTitle>Relationships</DetailTitle>
-                      <DetailContent>
-                        {animalResults[result].relationships.map((item, index) => (
-                          <span key={index}>{item}</span>
-                        ))}
-                      </DetailContent>
-                    </DetailSection>
-                  </ResultDetails>
+                  
+                  <Section>
+                    <SectionTitle>Core Values</SectionTitle>
+                    <SectionContent>
+                      {animalResults[result].values.map((value, index) => (
+                        <SectionItem key={index}>{value}</SectionItem>
+                      ))}
+                    </SectionContent>
+                  </Section>
+
+                  <Section>
+                    <SectionTitle>Communication Style</SectionTitle>
+                    <SectionContent>
+                      {animalResults[result].communication.map((style, index) => (
+                        <SectionItem key={index}>{style}</SectionItem>
+                      ))}
+                    </SectionContent>
+                  </Section>
+
+                  <Section>
+                    <SectionTitle>Relationships</SectionTitle>
+                    <SectionContent>
+                      {animalResults[result].relationships.map((rel, index) => (
+                        <SectionItem key={index}>{rel}</SectionItem>
+                      ))}
+                    </SectionContent>
+                  </Section>
+
                   <TraitsContainer>
-                    {animalResults[result].traits.map((trait, index) => (
-                      <Trait
-                        key={trait}
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.6 + index * 0.1 }}
-                      >
-                        {trait}
-                      </Trait>
+                    {animalResults[result].traits.map((trait) => (
+                      <Trait key={trait}>{trait}</Trait>
                     ))}
                   </TraitsContainer>
                 </ShareableResult>
                 <ShareButtonsContainer>
-                  <ImageShareButton
+                  <ShareButton
                     onClick={handleShareMenuClick}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     Share to Social Media
-                  </ImageShareButton>
+                  </ShareButton>
                   <RestartButton
                     onClick={handleRestart}
                     whileHover={{ scale: 1.05 }}
