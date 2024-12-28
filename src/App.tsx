@@ -618,7 +618,7 @@ function App() {
           await navigator.share({
             files: [file],
             title: '🌸 My Animal Soul Match 🌸',
-            text: 'I found my Animal Soul Match! Take the quiz to find yours!'
+            text: `I found my Animal Soul Match! Take the quiz to find yours!\n${window.location.origin}`
           });
         } catch (shareError) {
           // Fallback to URL method
