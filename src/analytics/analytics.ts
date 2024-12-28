@@ -9,36 +9,62 @@ export const trackPageView = () => {
   ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
 };
 
-// Track quiz start
+// Track quiz start with source info
 export const trackQuizStart = () => {
-  ReactGA.event({
-    category: 'Quiz',
-    action: 'Start',
+  ReactGA.event('quiz_start', {
+    category: 'engagement',
+    source: document.referrer || 'direct'
   });
 };
 
-// Track question answer
+// Track question answer with more details
 export const trackQuestionAnswer = (questionId: number, selectedOption: string) => {
-  ReactGA.event({
-    category: 'Quiz',
-    action: 'Answer',
-    label: `Q${questionId}: ${selectedOption}`,
+  ReactGA.event('question_answer', {
+    category: 'engagement',
+    question_id: questionId,
+    selected_option: selectedOption,
+    question_number: questionId + 1
   });
 };
 
-// Track quiz completion
+// Track quiz completion with more metrics
 export const trackQuizCompletion = (result: AnimalType) => {
-  ReactGA.event({
-    category: 'Quiz',
-    action: 'Complete',
-    label: result,
+  ReactGA.event('quiz_completion', {
+    animal_result: result,
+    category: 'engagement',
+    event_label: result,
+    completion_time: Math.floor((Date.now() - window.performance.timing.navigationStart) / 1000)
   });
 };
 
-// Track share actions
+// Track share actions with platform info
 export const trackShare = (method: 'image' | 'text') => {
-  ReactGA.event({
-    category: 'Share',
-    action: method === 'image' ? 'Share Image' : 'Share Text',
+  ReactGA.event('share', {
+    category: 'engagement',
+    share_method: method,
+    platform: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+  });
+};
+
+// Track retakes
+export const trackRetake = () => {
+  ReactGA.event('quiz_retake', {
+    category: 'engagement'
+  });
+};
+
+// Track time spent on result page
+export const trackResultView = (timeSpentSeconds: number) => {
+  ReactGA.event('result_view', {
+    category: 'engagement',
+    time_spent: timeSpentSeconds
+  });
+};
+
+// Track button clicks
+export const trackButtonClick = (buttonName: string) => {
+  ReactGA.event('button_click', {
+    category: 'engagement',
+    button_name: buttonName
   });
 };

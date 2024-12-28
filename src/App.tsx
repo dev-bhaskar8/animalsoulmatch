@@ -6,7 +6,7 @@ import { Question, AnimalType, animalResults } from './data/questions';
 import { getRandomQuestions } from './data/questionBank';
 import { ComingSoon } from './components/ComingSoon/ComingSoon';
 import html2canvas from 'html2canvas';
-import { trackPageView, trackQuizStart, trackQuestionAnswer, trackQuizCompletion, trackShare } from './analytics/analytics';
+import { trackPageView, trackQuizStart, trackQuestionAnswer, trackQuizCompletion, trackShare, trackRetake, trackResultView, trackButtonClick } from './analytics/analytics';
 
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap');
@@ -471,17 +471,34 @@ function App() {
     }
   };
 
-  const handleRestart = () => {
+  const handleRetake = () => {
+    trackRetake();
     setCurrentQuestion(0);
     setScores(initialScores);
     setResult(null);
-    const questions = getRandomQuestions(6).map(q => ({
-      ...q,
-      options: shuffleArray([...q.options])
-    }));
-    setQuizQuestions(questions);
-    // Track new quiz start
-    trackQuizStart();
+    setShowShareMenu(false);
+  };
+
+  const handleShareButtonClick = () => {
+    trackButtonClick('share');
+    handleSaveAndShare();
+  };
+
+  // Track time spent on result page
+  useEffect(() => {
+    let startTime: number;
+    if (result) {
+      startTime = Date.now();
+      return () => {
+        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+        trackResultView(timeSpent);
+      };
+    }
+  }, [result]);
+
+  const handleOptionClick = (option: Question['options'][0]) => {
+    trackButtonClick(`option_${currentQuestion + 1}`);
+    handleAnswer(option);
   };
 
   const handleSaveAndShare = async () => {
@@ -666,10 +683,6 @@ function App() {
     }
   };
 
-  const handleShareMenuClick = () => {
-    setShowShareMenu(true);
-  };
-
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
@@ -741,14 +754,14 @@ function App() {
                 </ShareableResult>
                 <ShareButtonsContainer>
                   <ShareButton
-                    onClick={handleShareMenuClick}
+                    onClick={handleShareButtonClick}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     Share to Social Media
                   </ShareButton>
                   <RestartButton
-                    onClick={handleRestart}
+                    onClick={handleRetake}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -801,7 +814,7 @@ function App() {
                     <Option
                       as={motion.button}
                       key={option.id}
-                      onClick={() => handleAnswer(option)}
+                      onClick={() => handleOptionClick(option)}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
