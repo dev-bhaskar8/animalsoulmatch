@@ -127,32 +127,23 @@ const ShareableResult = styled(motion.div)`
   margin: 0 auto;
   position: relative;
   color: #000;
-  isolation: isolate;
 
   &:before, &:after {
     content: '🌸';
     position: absolute;
-    font-size: 5rem;
-    opacity: 0.15;
-    z-index: -1;
-    pointer-events: none;
+    font-size: 3rem;
+    opacity: 0.3;
+    z-index: 1;
   }
 
   &:before {
-    top: 25%;
-    left: 15%;
-    transform: translateZ(0);
+    top: 1.5rem;
+    left: 1.5rem;
   }
 
   &:after {
-    bottom: 25%;
-    right: 15%;
-    transform: translateZ(0);
-  }
-
-  & > * {
-    position: relative;
-    z-index: 1;
+    bottom: 1.5rem;
+    right: 1.5rem;
   }
 
   @media (min-width: 600px) {
@@ -241,7 +232,7 @@ const TraitsContainer = styled.div`
 
 const Trait = styled.span`
   background: ${({ theme }) => `${theme.colors.primary}15`};
-  color: #000;
+  color: ${({ theme }) => theme.colors.primary};
   padding: 0.5rem 1rem;
   border-radius: 2rem;
   font-size: 0.9rem;
@@ -282,13 +273,6 @@ const ShareButton = styled(motion.button)`
   }
 `;
 
-const AnimalEmoji = styled.span`
-  font-size: 3.5rem;
-  margin: 0;
-  display: block;
-  text-align: center;
-`;
-
 const RestartButton = styled(ShareButton)`
   background: ${({ theme }) => theme.colors.secondary};
   
@@ -297,12 +281,11 @@ const RestartButton = styled(ShareButton)`
   }
 `;
 
-const ImageShareButton = styled(ShareButton)`
-  background: #FFB7C5;
-  
-  &:hover {
-    background: #FFB7C5dd;
-  }
+const AnimalEmoji = styled.span`
+  font-size: 3.5rem;
+  margin: 0;
+  display: block;
+  text-align: center;
 `;
 
 const ShareMenu = styled(motion.div)`
@@ -414,8 +397,23 @@ function App() {
   const [result, setResult] = useState<AnimalType | null>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
 
+  // Shuffle array helper function
+  const shuffleArray = <T extends any[]>(array: T): T => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray as T;
+  };
+
   useEffect(() => {
-    setQuizQuestions(getRandomQuestions(6));
+    // Get random questions and randomize their options
+    const questions = getRandomQuestions(6).map(q => ({
+      ...q,
+      options: shuffleArray([...q.options])
+    }));
+    setQuizQuestions(questions);
   }, []);
 
   const handleAnswer = (option: Question['options'][0]) => {
@@ -439,7 +437,10 @@ function App() {
     setCurrentQuestion(0);
     setScores(initialScores);
     setResult(null);
-    setQuizQuestions(getRandomQuestions(6));
+    setQuizQuestions(getRandomQuestions(6).map(q => ({
+      ...q,
+      options: shuffleArray([...q.options])
+    })));
   };
 
   const handleSaveAndShare = async () => {
