@@ -6,6 +6,7 @@ import { Question, AnimalType, animalResults } from './data/questions';
 import { getRandomQuestions } from './data/questionBank';
 import { ComingSoon } from './components/ComingSoon/ComingSoon';
 import html2canvas from 'html2canvas';
+import { trackPageView, trackQuizStart, trackQuestionAnswer, trackQuizCompletion, trackShare } from './analytics/analytics';
 
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600&display=swap');
@@ -417,15 +418,25 @@ function App() {
   };
 
   useEffect(() => {
+    // Track page view when app loads
+    trackPageView();
+  }, []);
+
+  useEffect(() => {
     // Get random questions and randomize their options
     const questions = getRandomQuestions(6).map(q => ({
       ...q,
       options: shuffleArray([...q.options])
     }));
     setQuizQuestions(questions);
+    // Track quiz start
+    trackQuizStart();
   }, []);
 
   const handleAnswer = (option: Question['options'][0]) => {
+    // Track answer
+    trackQuestionAnswer(quizQuestions[currentQuestion].id, option.text);
+    
     const newScores = { ...scores };
     
     // Calculate total score for normalization
@@ -450,7 +461,11 @@ function App() {
       
       // Randomly select from top scorers if there are multiple
       const winner = topScorers[Math.floor(Math.random() * topScorers.length)];
-      setResult(winner[0] as AnimalType);
+      const resultAnimal = winner[0] as AnimalType;
+      setResult(resultAnimal);
+      
+      // Track quiz completion
+      trackQuizCompletion(resultAnimal);
     }
   };
 
@@ -458,10 +473,13 @@ function App() {
     setCurrentQuestion(0);
     setScores(initialScores);
     setResult(null);
-    setQuizQuestions(getRandomQuestions(6).map(q => ({
+    const questions = getRandomQuestions(6).map(q => ({
       ...q,
       options: shuffleArray([...q.options])
-    })));
+    }));
+    setQuizQuestions(questions);
+    // Track new quiz start
+    trackQuizStart();
   };
 
   const handleSaveAndShare = async () => {
@@ -489,6 +507,8 @@ function App() {
       setTimeout(() => URL.revokeObjectURL(url), 60000);
       
       setShowShareMenu(false);
+      // Track image share
+      trackShare('image');
     } catch (error) {
       console.error('Error generating image:', error);
     }
@@ -512,6 +532,8 @@ function App() {
         navigator.clipboard.writeText(text);
       }
       setShowShareMenu(false);
+      // Track text share
+      trackShare('text');
     }
   };
 
