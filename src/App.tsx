@@ -298,7 +298,7 @@ function App() {
       const text = `I found my Animal Soul Match! I'm ${animalResults[result].title} ${animalEmoji}\n${animalResults[result].description}\nFind your match too!`;
       if (navigator.share) {
         navigator.share({
-          title: 'My Animal Soul Match Result',
+          title: '🌸 My Animal Soul Match Result 🌸',
           text: text,
           url: window.location.href,
         });
