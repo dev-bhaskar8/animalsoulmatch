@@ -608,9 +608,30 @@ function App() {
         }, 'image/png', 1.0);
       });
 
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      // Check if it's a mobile device
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      if (isMobile && navigator.share) {
+        // Mobile sharing
+        try {
+          const file = new File([blob], 'animal-soul-match.png', { type: 'image/png' });
+          await navigator.share({
+            files: [file],
+            title: '🌸 My Animal Soul Match 🌸',
+            text: 'I found my Animal Soul Match! Take the quiz to find yours!'
+          });
+        } catch (shareError) {
+          // Fallback to URL method
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+        }
+      } else {
+        // Desktop sharing - open in new tab
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      }
       
       setShowShareMenu(false);
       trackShare('image');
